@@ -1,0 +1,19 @@
+```gitignore
+# Visual Studio
+api/TodoApi/.vs/
+api/TodoApi/bin/
+api/TodoApi/obj/
+*.user
+*.suo
+
+# Dotnet general
+*.log
+
+# Angular client
+client/todo-client/node_modules/
+client/todo-client/dist/
+client/todo-client/.angular/
+
+# OS
+.DS_Store
+Thumbs.db

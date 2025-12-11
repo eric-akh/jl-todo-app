@@ -1,0 +1,25 @@
+<div class="container">
+  <h1>Todo List</h1>
+
+  <form (ngSubmit)="addTodo()" class="todo-form">
+    <input type="text"
+           [(ngModel)]="newTitle"
+           name="title"
+           placeholder="Add a new task" />
+    <button type="submit">Add</button>
+  </form>
+
+  <div *ngIf="loading">Loading...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <ul class="todo-list">
+    <li *ngFor="let todo of todos">
+      <span>{{ todo.title }}</span>
+      <button type="button" (click)="deleteTodo(todo)">Delete</button>
+    </li>
+  </ul>
+
+  <div *ngIf="todos.length === 0 && !loading">
+    No items yet.
+  </div>
+</div>
