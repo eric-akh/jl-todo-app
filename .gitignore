@@ -1,19 +1,55 @@
-```gitignore
-# Visual Studio
-api/TodoApi/.vs/
-api/TodoApi/bin/
-api/TodoApi/obj/
+# -------------------------
+# Visual Studio / .NET
+# -------------------------
 *.user
 *.suo
+*.userosscache
+*.sln.docstates
+*.vsp
+*.pdb
+*.cache
+*.dll
+*.exe
+*.dbmdl
 
-# Dotnet general
+# Build folders
+**/bin/
+**/obj/
+
+# VS working folder
+**/.vs/
+
+# Logs
 *.log
+**/Logs/
 
-# Angular client
+# Rider / JetBrains
+.idea/
+*.iml
+
+# -------------------------
+# Angular
+# -------------------------
 client/todo-client/node_modules/
 client/todo-client/dist/
 client/todo-client/.angular/
+client/todo-client/.env
 
-# OS
+# Angular cache
+client/todo-client/.vite/
+client/todo-client/.output/
+
+# -------------------------
+# OS junk files
+# -------------------------
 .DS_Store
 Thumbs.db
+
+# -------------------------
+# Temporary files
+# -------------------------
+*.tmp
+*.temp
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
