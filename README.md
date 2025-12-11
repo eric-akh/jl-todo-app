@@ -32,18 +32,31 @@ Frontend is built with the latest version of Angular, and backend is a .NET Web 
 
 root
 ├─ api/ → .NET Web API
+
 │ ├─ Models/
+
 │ ├─ Services/
+
 │ ├─ Program.cs
+
 │ └─ TodoApi.csproj
+
 │
+
 └─ client/ → Angular application
+
 ├─ src/app/
+
 │ ├─ app.component.*
+
 │ ├─ todo.service.ts
+
 │ ├─ todo.ts
+
 │ └─ app.ts (module/bootstrap)
+
 ├─ package.json
+
 └─ angular.json
 
 ---
