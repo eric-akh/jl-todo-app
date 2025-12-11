@@ -46,9 +46,6 @@ root
 ├─ package.json
 └─ angular.json
 
-yaml
-Copy code
-
 ---
 
 ## How to Run the Project
@@ -58,19 +55,11 @@ cd api
 dotnet restore
 dotnet run
 
-arduino
-Copy code
 API will be available at:
 http://localhost:5028
 
-yaml
-Copy code
-
 Swagger UI:
 http://localhost:5028/swagger
-
-yaml
-Copy code
 
 ---
 
@@ -79,14 +68,8 @@ cd client
 npm install
 npm start
 
-arduino
-Copy code
-
 Client will run at:
 http://localhost:4200
-
-yaml
-Copy code
 
 ---
 
