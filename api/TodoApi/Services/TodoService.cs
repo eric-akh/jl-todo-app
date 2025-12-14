@@ -1,32 +1,59 @@
-﻿using TodoApi.Models;
+﻿using System.Collections.Concurrent;
+using TodoApi.Models;
 
 namespace TodoApi.Services;
 
-public class TodoService
+public sealed class TodoService
 {
-    private readonly List<TodoItem> _items = new();
-    private int _nextId = 1;
+    private readonly ConcurrentDictionary<Guid, TodoItem> _items = new();
 
-    public IEnumerable<TodoItem> GetAll() => _items;
+    public IReadOnlyCollection<TodoItem> GetAll()
+        => _items.Values
+            .OrderByDescending(x => x.CreatedAt)
+            .ToList();
 
-    public TodoItem Add(string title)
+    public TodoItem Add(CreateTodoRequest request)
     {
+        if (request is null)
+            throw new ArgumentNullException(nameof(request));
+
+        var title = (request.Title ?? string.Empty).Trim();
+
+        if (title.Length == 0)
+            throw new ArgumentException("Title is required.");
+
+        if (title.Length > 200)
+            throw new ArgumentException("Title must be 200 characters or less.");
+
+        if (!Enum.IsDefined(typeof(TodoPriority), request.Priority))
+            throw new ArgumentException("Priority must be 1 (Low), 2 (Medium), or 3 (High).");
+
+        if (request.DueAt is not null && request.DueAt.Value < DateTimeOffset.UtcNow.AddMinutes(-1))
+            throw new ArgumentException("Due date cannot be in the past.");
+
         var item = new TodoItem
         {
-            Id = _nextId++,
+            Id = Guid.NewGuid(),
             Title = title,
-            IsDone = false
+            IsCompleted = false,
+            CreatedAt = DateTimeOffset.UtcNow,
+            DueAt = request.DueAt,
+            Priority = (TodoPriority)request.Priority
         };
 
-        _items.Add(item);
+        _items[item.Id] = item;
         return item;
     }
 
-    public bool Delete(int id)
+    public bool Delete(Guid id)
+        => _items.TryRemove(id, out _);
+
+    public bool ToggleComplete(Guid id)
     {
-        var item = _items.FirstOrDefault(x => x.Id == id);
-        if (item == null) return false;
-        _items.Remove(item);
+        if (!_items.TryGetValue(id, out var existing))
+            return false;
+
+        existing.IsCompleted = !existing.IsCompleted;
         return true;
     }
 }

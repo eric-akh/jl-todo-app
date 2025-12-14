@@ -1,23 +1,48 @@
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.OpenApi;
+using System.ComponentModel.DataAnnotations;
 using TodoApi.Models;
 using TodoApi.Services;
 
+static IResult Validate<T>(T model)
+{
+    var context = new ValidationContext(model!);
+    var results = new List<ValidationResult>();
+
+    if (Validator.TryValidateObject(model!, context, results, validateAllProperties: true))
+        return Results.Ok();
+
+    var errors = results
+        .GroupBy(r => r.MemberNames.FirstOrDefault() ?? string.Empty)
+        .ToDictionary(g => g.Key, g => g.Select(x => x.ErrorMessage ?? "Invalid").ToArray());
+
+    return Results.ValidationProblem(errors);
+}
+
+static IResult NotFoundProblem(string detail)
+{
+    return Results.Problem(
+        statusCode: StatusCodes.Status404NotFound,
+        title: "Not Found",
+        detail: detail);
+}
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services
 builder.Services.AddSingleton<TodoService>();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "TodoApi", Version = "v1" });
+});
 
-// CORS - To link with Angular
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
-    {
         policy
-            .AllowAnyOrigin()
             .AllowAnyHeader()
-            .AllowAnyMethod();
-    });
+            .AllowAnyMethod()
+            .AllowAnyOrigin());
 });
 
 var app = builder.Build();
@@ -32,22 +57,63 @@ if (app.Environment.IsDevelopment())
 
 app.MapGet("/api/todos", (TodoService service) =>
 {
-    return Results.Ok(service.GetAll());
+    return Results.Ok(service.GetAll().Select(x => new TodoResponse
+    {
+        Id = x.Id,
+        Title = x.Title,
+        IsCompleted = x.IsCompleted,
+        Priority = (int)x.Priority,
+        CreatedAt = x.CreatedAt,
+        DueAt = x.DueAt
+    }));
 });
 
-app.MapPost("/api/todos", (TodoService service, TodoItem request) =>
+app.MapPost("/api/todos", (CreateTodoRequest request, TodoService service) =>
 {
-    if (string.IsNullOrWhiteSpace(request.Title))
-        return Results.BadRequest("Title is required");
+    var validation = Validate(request);
+    if (validation is not Ok)
+        return validation;
 
-    var created = service.Add(request.Title);
-    return Results.Created($"/api/todos/{created.Id}", created);
+    try
+    {
+        var created = service.Add(request);
+
+        return Results.Created($"/api/todos/{created.Id}", new TodoResponse
+        {
+            Id = created.Id,
+            Title = created.Title,
+            IsCompleted = created.IsCompleted,
+            Priority = (int)created.Priority,
+            CreatedAt = created.CreatedAt,
+            DueAt = created.DueAt
+        });
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { message = ex.Message });
+    }
 });
 
-app.MapDelete("/api/todos/{id:int}", (TodoService service, int id) =>
+app.MapDelete("/api/todos/{id:guid}", (TodoService service, Guid id) =>
 {
-    var deleted = service.Delete(id);
-    return deleted ? Results.NoContent() : Results.NotFound();
+    var removed = service.Delete(id);
+
+    if (!removed)
+        return NotFoundProblem($"Todo item with id '{id}' was not found.");
+
+    return Results.NoContent();
+});
+
+app.MapPatch("/api/todos/{id:guid}/toggle", (TodoService service, Guid id) =>
+{
+    var ok = service.ToggleComplete(id);
+
+    if (!ok)
+        return NotFoundProblem($"Todo item with id '{id}' was not found.");
+
+    return Results.NoContent();
 });
 
 app.Run();
+
+public partial class Program { }
