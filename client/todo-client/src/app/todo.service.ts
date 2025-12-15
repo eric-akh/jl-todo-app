@@ -1,25 +1,27 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Todo } from './todo';
+import { CreateTodoRequest, TodoItem } from './todo';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class TodoService {
-  private http = inject(HttpClient);
-  private baseUrl = 'https://localhost:5028/api/todos'; // Set API base URL here
+  private readonly baseUrl = 'http://localhost:5028/api/todos';
 
-  getTodos(): Observable<Todo[]> {
-    return this.http.get<Todo[]>(this.baseUrl);
+  constructor(private readonly http: HttpClient) { }
+
+  getAll(): Observable<TodoItem[]> {
+    return this.http.get<TodoItem[]>(this.baseUrl);
   }
 
-  addTodo(title: string): Observable<Todo> {
-    const body = { id: 0, title, isDone: false };
-    return this.http.post<Todo>(this.baseUrl, body);
+  add(request: CreateTodoRequest): Observable<TodoItem> {
+    return this.http.post<TodoItem>(this.baseUrl, request);
   }
 
-  deleteTodo(id: number): Observable<void> {
+  delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
+  toggle(id: string): Observable<void> {
+    return this.http.patch<void>(`${this.baseUrl}/${id}/toggle`, {});
   }
 }
