@@ -1,25 +1,106 @@
-<div class="container">
-  <h1>Todo List</h1>
+<mat-toolbar color="primary" class="toolbar">
+  <span>{{ titleText }}</span>
 
-  <form (ngSubmit)="addTodo()" class="todo-form">
-    <input type="text"
-           [(ngModel)]="newTitle"
-           name="title"
-           placeholder="Add a new task" />
-    <button type="submit">Add</button>
-  </form>
+  <span class="spacer"></span>
 
-  <div *ngIf="loading">Loading...</div>
-  <div *ngIf="error" class="error">{{ error }}</div>
+  <button mat-stroked-button (click)="refresh()" [disabled]="loading">
+    Refresh
+  </button>
+</mat-toolbar>
 
-  <ul class="todo-list">
-    <li *ngFor="let todo of todos">
-      <span>{{ todo.title }}</span>
-      <button type="button" (click)="deleteTodo(todo)">Delete</button>
-    </li>
-  </ul>
+<div class="page">
+  <mat-card class="card">
+    <div class="card-title">Add a todo</div>
 
-  <div *ngIf="todos.length === 0 && !loading">
-    No items yet.
-  </div>
+    <form class="form" [formGroup]="form" (ngSubmit)="add()">
+      <mat-form-field appearance="outline">
+        <mat-label>Title</mat-label>
+        <input matInput formControlName="title" placeholder="e.g. Call the builder" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Priority</mat-label>
+        <mat-select formControlName="priority">
+          <mat-option *ngFor="let p of priorities" [value]="p.value">{{ p.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Due date</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="dueAt" />
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+
+      <button mat-flat-button color="primary" type="submit" class="btn-add" [disabled]="loading || form.invalid">
+        Add
+      </button>
+    </form>
+  </mat-card>
+
+  <mat-card class="card">
+    <div class="status" *ngIf="loading">
+      <mat-spinner diameter="26"></mat-spinner>
+      <span>Loading...</span>
+    </div>
+
+    <div class="error" *ngIf="!loading && errorMessage">
+      {{ errorMessage }}
+    </div>
+
+    <div class="empty" *ngIf="!loading && !errorMessage && todos.length === 0">
+      No todos yet.
+    </div>
+
+    <div class="table-wrap" *ngIf="!loading && !errorMessage && todos.length > 0">
+      <table mat-table [dataSource]="todos" class="mat-elevation-z1">
+
+        <ng-container matColumnDef="done">
+          <th mat-header-cell *matHeaderCellDef>Done</th>
+          <td mat-cell *matCellDef="let todo">
+            <mat-checkbox [checked]="todo.isCompleted" (change)="toggle(todo)"></mat-checkbox>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="title">
+          <th mat-header-cell *matHeaderCellDef>Title</th>
+          <td mat-cell *matCellDef="let todo">
+            <span [class.done]="todo.isCompleted">{{ todo.title }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="priority">
+          <th mat-header-cell *matHeaderCellDef>Priority</th>
+          <td mat-cell *matCellDef="let todo">
+            <mat-chip [class]="priorityChipClass(todo.priority)">{{ priorityLabel(todo.priority) }}</mat-chip>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="due">
+          <th mat-header-cell *matHeaderCellDef>Due</th>
+          <td mat-cell *matCellDef="let todo">
+            <span class="due">{{ dueText(todo.dueAt) }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="col-actions">Actions</th>
+          <td mat-cell *matCellDef="let todo" class="col-actions">
+            <button mat-icon-button color="warn" (click)="remove(todo)" aria-label="Delete">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row
+            *matRowDef="let row; columns: displayedColumns"
+            [matTooltip]="createdAtTooltip(row.createdAt)"
+            matTooltipPosition="above"
+            matTooltipShowDelay="200">
+        </tr>
+
+      </table>
+    </div>
+  </mat-card>
 </div>
