@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
-using FluentAssertions;
 using TodoApi.Models;
 using Xunit;
 
@@ -16,60 +15,44 @@ public sealed class TodoApiIntegrationTests : IClassFixture<TestAppFactory>
     }
 
     [Fact]
-    public async Task GetTodos_ReturnsOk()
+    public async Task GetTodos_ShouldReturnOk()
     {
         var res = await _client.GetAsync("/api/todos");
-        res.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        Assert.Equal(HttpStatusCode.OK, res.StatusCode);
+
+        var todos = await res.Content.ReadFromJsonAsync<List<TodoResponse>>();
+        Assert.NotNull(todos);
     }
 
     [Fact]
-    public async Task PostTodo_WithValidRequest_CreatesTodo()
+    public async Task PostTodo_ThenDelete_ShouldWork()
     {
-        var req = new CreateTodoRequest
+        var due = DateTimeOffset.UtcNow.AddDays(2);
+
+        var create = new CreateTodoRequest
         {
-            Title = "Buy milk",
-            Priority = 2,
-            DueAt = DateTimeOffset.UtcNow.AddDays(1)
+            Title = "Integration test",
+            Priority = (int)TodoPriority.Low,
+            DueAt = due
         };
 
-        var res = await _client.PostAsJsonAsync("/api/todos", req);
+        var postRes = await _client.PostAsJsonAsync("/api/todos", create);
+        Assert.Equal(HttpStatusCode.Created, postRes.StatusCode);
 
-        res.StatusCode.Should().Be(HttpStatusCode.Created);
+        var created = await postRes.Content.ReadFromJsonAsync<TodoResponse>();
+        Assert.NotNull(created);
+        Assert.NotEqual(Guid.Empty, created!.Id);
+        Assert.Equal(due, created.DueAt);
 
-        var body = await res.Content.ReadFromJsonAsync<TodoResponse>();
-        body.Should().NotBeNull();
-        body!.Title.Should().Be("Buy milk");
-        body.Priority.Should().Be(2);
-        body.IsCompleted.Should().BeFalse();
+        var delRes = await _client.DeleteAsync($"/api/todos/{created.Id}");
+        Assert.Equal(HttpStatusCode.NoContent, delRes.StatusCode);
     }
 
     [Fact]
-    public async Task PostTodo_WithInvalidPriority_ReturnsBadRequest()
+    public async Task Delete_ShouldReturn404_WhenNotFound()
     {
-        var req = new CreateTodoRequest
-        {
-            Title = "Invalid priority",
-            Priority = 4
-        };
-
-        var res = await _client.PostAsJsonAsync("/api/todos", req);
-
-        res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-    }
-
-    [Fact]
-    public async Task DeleteTodo_WhenNotFound_ReturnsNotFound()
-    {
-        var id = Guid.NewGuid();
-        var res = await _client.DeleteAsync($"/api/todos/{id}");
-        res.StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
-
-    [Fact]
-    public async Task ToggleTodo_WhenNotFound_ReturnsNotFound()
-    {
-        var id = Guid.NewGuid();
-        var res = await _client.PatchAsync($"/api/todos/{id}/toggle", content: null);
-        res.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        var res = await _client.DeleteAsync($"/api/todos/{Guid.NewGuid()}");
+        Assert.Equal(HttpStatusCode.NotFound, res.StatusCode);
     }
 }

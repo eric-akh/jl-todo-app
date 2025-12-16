@@ -1,21 +1,22 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({
+  selector: 'app-confirm-dialog',
   standalone: true,
   imports: [MatDialogModule, MatButtonModule],
   template: `
-    <h2 mat-dialog-title>Delete todo?</h2>
+    <h2 mat-dialog-title>Confirm</h2>
     <div mat-dialog-content>
-      Are you sure you want to delete "<b>{{ data.title }}</b>"?
+      <p>{{ data.message }}</p>
     </div>
     <div mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close="false">Cancel</button>
-      <button mat-raised-button color="warn" [mat-dialog-close]="true">Delete</button>
+      <button mat-stroked-button [mat-dialog-close]="false">Cancel</button>
+      <button mat-flat-button color="warn" [mat-dialog-close]="true">Delete</button>
     </div>
-  `
+  `,
 })
 export class ConfirmDialogComponent {
-  constructor(@Inject(MAT_DIALOG_DATA) public data: { title: string }) { }
+  data = inject(MAT_DIALOG_DATA) as { message: string };
 }

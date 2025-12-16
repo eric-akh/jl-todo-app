@@ -14,22 +14,14 @@ public sealed class TodoService
 
     public TodoItem Add(CreateTodoRequest request)
     {
-        if (request is null)
-            throw new ArgumentNullException(nameof(request));
-
         var title = (request.Title ?? string.Empty).Trim();
-
         if (title.Length == 0)
             throw new ArgumentException("Title is required.");
-
         if (title.Length > 200)
             throw new ArgumentException("Title must be 200 characters or less.");
 
         if (!Enum.IsDefined(typeof(TodoPriority), request.Priority))
-            throw new ArgumentException("Priority must be 1 (Low), 2 (Medium), or 3 (High).");
-
-        if (request.DueAt is not null && request.DueAt.Value < DateTimeOffset.UtcNow.AddMinutes(-1))
-            throw new ArgumentException("Due date cannot be in the past.");
+            throw new ArgumentException("Priority must be 1, 2, or 3.");
 
         var item = new TodoItem
         {
@@ -54,6 +46,32 @@ public sealed class TodoService
             return false;
 
         existing.IsCompleted = !existing.IsCompleted;
+        return true;
+    }
+
+    // PATCH /api/todos/{id} support (fixes your 405 MethodNotAllowed tests)
+    public bool Update(Guid id, UpdateTodoRequest request, out TodoItem updated)
+    {
+        updated = default!;
+
+        if (!_items.TryGetValue(id, out var existing))
+            return false;
+
+        var title = (request.Title ?? string.Empty).Trim();
+        if (title.Length == 0)
+            throw new ArgumentException("Title is required.");
+        if (title.Length > 200)
+            throw new ArgumentException("Title must be 200 characters or less.");
+
+        if (!Enum.IsDefined(typeof(TodoPriority), request.Priority))
+            throw new ArgumentException("Priority must be 1, 2, or 3.");
+
+        // Update in place (in-memory store)
+        existing.Title = title;
+        existing.Priority = (TodoPriority)request.Priority;
+        existing.IsCompleted = request.IsCompleted;
+
+        updated = existing;
         return true;
     }
 }

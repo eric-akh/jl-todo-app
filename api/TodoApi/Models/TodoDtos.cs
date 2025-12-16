@@ -9,10 +9,25 @@ public sealed class CreateTodoRequest
     [MaxLength(200)]
     public string Title { get; set; } = string.Empty;
 
-    [Range(1, 3, ErrorMessage = "Priority must be 1 (Low), 2 (Medium), or 3 (High).")]
+    [Range(1, 3)]
     public int Priority { get; set; } = 2;
 
-    public DateTimeOffset? DueAt { get; set; }
+    [Required]
+    public DateTimeOffset DueAt { get; set; }
+}
+
+public sealed class UpdateTodoRequest
+{
+    // the client sends the full payload we care about.
+    [Required]
+    [MinLength(1)]
+    [MaxLength(200)]
+    public string Title { get; set; } = string.Empty;
+
+    [Range(1, 3)]
+    public int Priority { get; set; } = 2;
+
+    public bool IsCompleted { get; set; }
 }
 
 public sealed class TodoResponse

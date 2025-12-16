@@ -1,20 +1,19 @@
-export enum TodoPriority {
-  Low = 1,
-  Medium = 2,
-  High = 3,
-}
+// Domain types used by the UI.
+// Keeping priority as 1|2|3 matches the API payload cleanly.
+
+export type TodoPriority = 1 | 2 | 3;
 
 export interface TodoItem {
   id: string;
   title: string;
   isCompleted: boolean;
-  priority: TodoPriority; // 1..3
-  createdAt: string;      // ISO string
-  dueAt?: string | null;  // ISO string or null
+  priority: TodoPriority;
+  createdAt: string;
+  dueAt: string;
 }
 
-export interface CreateTodoRequest {
-  title: string;
-  priority: TodoPriority;
-  dueAt?: string | null;
-}
+export const PRIORITIES: Array<{ value: TodoPriority; label: string }> = [
+  { value: 1, label: 'Low' },
+  { value: 2, label: 'Medium' },
+  { value: 3, label: 'High' }
+];

@@ -16,5 +16,5 @@ public sealed class TodoItem
     public TodoPriority Priority { get; set; } = TodoPriority.Medium;
 
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
-    public DateTimeOffset? DueAt { get; set; }
+    public DateTimeOffset DueAt { get; set; }
 }

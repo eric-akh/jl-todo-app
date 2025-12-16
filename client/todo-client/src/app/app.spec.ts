@@ -1,23 +1,50 @@
 import { TestBed } from '@angular/core/testing';
-import { App } from './app';
+import { of } from 'rxjs';
 
-describe('App', () => {
+import { AppComponent } from './app.component';
+import { TodoService } from './todo.service';
+import { MatDialog } from '@angular/material/dialog';
+
+describe('AppComponent', () => {
+  const todoServiceMock = {
+    getAll: vi.fn(() => of([])),
+    add: vi.fn(() => of({})),
+    toggle: vi.fn(() => of({})),
+    delete: vi.fn(() => of({}))
+  };
+
+  const matDialogMock = {
+    open: vi.fn(() => ({
+      afterClosed: () => of(false)
+    }))
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [App],
+      imports: [AppComponent],
+      providers: [
+        { provide: TodoService, useValue: todoServiceMock },
+        { provide: MatDialog, useValue: matDialogMock }
+      ]
     }).compileComponents();
+
+    vi.clearAllMocks();
   });
 
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
+  it('should create', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('should render title', async () => {
-    const fixture = TestBed.createComponent(App);
-    await fixture.whenStable();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, todo-client');
+  it('should call refresh on init and stop loading', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+
+    // triggers ngOnInit -> refresh()
+    fixture.detectChanges();
+
+    const comp = fixture.componentInstance;
+
+    expect(todoServiceMock.getAll).toHaveBeenCalled();
+    expect(comp.loading).toBe(false); // Vitest matcher
   });
 });

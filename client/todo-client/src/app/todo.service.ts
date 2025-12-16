@@ -1,7 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { CreateTodoRequest, TodoItem } from './todo';
+import { TodoItem, TodoPriority } from './todo';
+
+export interface CreateTodoRequest {
+  title: string;
+  priority: TodoPriority;
+  dueAt: string; // required now
+}
 
 @Injectable({ providedIn: 'root' })
 export class TodoService {
