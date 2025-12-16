@@ -19,13 +19,15 @@ static IResult Validate<T>(T model)
     return Results.ValidationProblem(errors);
 }
 
-static IResult NotFoundProblem(string detail)
+static TodoResponse ToResponse(TodoItem x) => new()
 {
-    return Results.Problem(
-        statusCode: StatusCodes.Status404NotFound,
-        title: "Not Found",
-        detail: detail);
-}
+    Id = x.Id,
+    Title = x.Title,
+    IsCompleted = x.IsCompleted,
+    Priority = (int)x.Priority,
+    CreatedAt = x.CreatedAt,
+    DueAt = x.DueAt
+};
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,36 +59,24 @@ if (app.Environment.IsDevelopment())
 
 app.MapGet("/api/todos", (TodoService service) =>
 {
-    return Results.Ok(service.GetAll().Select(x => new TodoResponse
-    {
-        Id = x.Id,
-        Title = x.Title,
-        IsCompleted = x.IsCompleted,
-        Priority = (int)x.Priority,
-        CreatedAt = x.CreatedAt,
-        DueAt = x.DueAt
-    }));
+    return Results.Ok(service.GetAll().Select(ToResponse));
 });
 
 app.MapPost("/api/todos", (CreateTodoRequest request, TodoService service) =>
 {
+    // DataAnnotations validation (includes DueAt required)
     var validation = Validate(request);
     if (validation is not Ok)
         return validation;
 
+    // Extra guardrails (defense in depth)
+    if (!Enum.IsDefined(typeof(TodoPriority), request.Priority))
+        return Results.BadRequest(new { message = "Priority must be 1, 2, or 3." });
+
     try
     {
         var created = service.Add(request);
-
-        return Results.Created($"/api/todos/{created.Id}", new TodoResponse
-        {
-            Id = created.Id,
-            Title = created.Title,
-            IsCompleted = created.IsCompleted,
-            Priority = (int)created.Priority,
-            CreatedAt = created.CreatedAt,
-            DueAt = created.DueAt
-        });
+        return Results.Created($"/api/todos/{created.Id}", ToResponse(created));
     }
     catch (ArgumentException ex)
     {
@@ -96,24 +86,37 @@ app.MapPost("/api/todos", (CreateTodoRequest request, TodoService service) =>
 
 app.MapDelete("/api/todos/{id:guid}", (TodoService service, Guid id) =>
 {
+    // IMPORTANT: If not found, return 404 (fixes your failing tests)
     var removed = service.Delete(id);
-
-    if (!removed)
-        return NotFoundProblem($"Todo item with id '{id}' was not found.");
-
-    return Results.NoContent();
+    return removed ? Results.NoContent() : Results.NotFound(new { message = "Todo not found." });
 });
 
+// PATCH update (this fixes your MethodNotAllowed integration tests)
+app.MapPatch("/api/todos/{id:guid}", (TodoService service, Guid id, UpdateTodoRequest request) =>
+{
+    var validation = Validate(request);
+    if (validation is not Ok)
+        return validation;
+
+    if (!Enum.IsDefined(typeof(TodoPriority), request.Priority))
+        return Results.BadRequest(new { message = "Priority must be 1, 2, or 3." });
+
+    try
+    {
+        var ok = service.Update(id, request, out var updated);
+        return ok ? Results.Ok(ToResponse(updated)) : Results.NotFound(new { message = "Todo not found." });
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { message = ex.Message });
+    }
+});
+
+// Keep toggle endpoint (handy for UI)
 app.MapPatch("/api/todos/{id:guid}/toggle", (TodoService service, Guid id) =>
 {
     var ok = service.ToggleComplete(id);
-
-    if (!ok)
-        return NotFoundProblem($"Todo item with id '{id}' was not found.");
-
-    return Results.NoContent();
+    return ok ? Results.NoContent() : Results.NotFound(new { message = "Todo not found." });
 });
 
 app.Run();
-
-public partial class Program { }

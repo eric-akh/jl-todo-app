@@ -1,65 +1,92 @@
-.toolbar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
+/* Layout */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.topbar {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 64px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.brand-title {
+  font-size: 22px;
+  font-weight: 650;
 }
 
 .spacer {
-  flex: 1;
+  flex: 1 1 auto;
 }
 
 .page {
-  max-width: 1100px;
-  margin: 24px auto;
-  padding: 0 16px;
-  display: grid;
-  gap: 16px;
+  padding-top: 22px;
+  padding-bottom: 40px;
 }
 
 .card {
-  padding: 16px;
+  margin-bottom: 18px;
+  border-radius: 12px;
 }
 
-.card-title {
-  font-weight: 600;
-  margin-bottom: 12px;
-}
-
-.form {
-  display: grid;
-  grid-template-columns: 1.4fr 0.8fr 1fr auto;
+/* Form row */
+.form-row {
+  display: flex;
   gap: 12px;
-  align-items: end;
+  align-items: stretch; /* makes the Add button align with fields */
+}
+
+.field {
+  flex: 0 0 auto;
+}
+
+.field-title {
+  flex: 1 1 420px;
+  min-width: 260px;
+}
+
+.field-priority {
+  width: 200px;
+  min-width: 160px;
+}
+
+.field-due {
+  width: 220px;
+  min-width: 180px;
+}
+
+.btn-sm {
+  height: 34px;
+  line-height: 34px;
+  padding: 0 12px;
+  border-radius: 10px;
 }
 
 .btn-add {
-  height: 56px;
+  margin-top: 4px; /* slight visual centering with outline fields */
 }
 
-.status {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  padding: 12px 0;
-}
-
-.error {
-  color: #b00020;
-  padding: 12px 0;
-}
-
-.empty {
-  opacity: 0.75;
-  padding: 12px 0;
-}
-
+/* Table */
 .table-wrap {
   overflow: auto;
-}
-
-.done {
-  text-decoration: line-through;
-  opacity: 0.65;
 }
 
 .col-actions {
@@ -67,18 +94,51 @@
   text-align: right;
 }
 
-mat-chip.chip-low {
-  background: #e3f2fd;
+.icon-btn {
+  width: 34px;
+  height: 34px;
 }
 
-mat-chip.chip-medium {
-  background: #fff8e1;
+.done {
+  text-decoration: line-through;
+  opacity: 0.65;
 }
 
-mat-chip.chip-high {
-  background: #ffebee;
+/* Status blocks */
+.status {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 8px;
 }
 
-.due {
-  opacity: 0.8;
+.error {
+  padding: 12px 8px;
+}
+
+.empty {
+  padding: 12px 8px;
+}
+
+/* Priority chips (simple, readable, consistent) */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 650;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.chip-low {
+  background: rgba(33, 150, 243, 0.12);
+}
+
+.chip-med {
+  background: rgba(255, 193, 7, 0.18);
+}
+
+.chip-high {
+  background: rgba(244, 67, 54, 0.14);
 }

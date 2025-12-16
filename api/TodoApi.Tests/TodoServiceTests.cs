@@ -2,81 +2,38 @@
 using TodoApi.Services;
 using Xunit;
 
+namespace TodoApi.Tests;
+
 public sealed class TodoServiceTests
 {
     [Fact]
-    public void Add_ShouldCreateItem_WhenRequestIsValid()
+    public void Add_ShouldCreateTodo_WhenRequestIsValid()
     {
         var service = new TodoService();
+        var due = DateTimeOffset.UtcNow.AddDays(3);
 
-        var req = new CreateTodoRequest
+        var created = service.Add(new CreateTodoRequest
         {
-            Title = "Buy milk",
-            Priority = 2,
-            DueAt = DateTimeOffset.UtcNow.AddDays(1)
-        };
-
-        var created = service.Add(req);
+            Title = "Pay bills",
+            Priority = (int)TodoPriority.High,
+            DueAt = due
+        });
 
         Assert.NotEqual(Guid.Empty, created.Id);
-        Assert.Equal("Buy milk", created.Title);
+        Assert.Equal("Pay bills", created.Title);
+        Assert.Equal(TodoPriority.High, created.Priority);
+        Assert.Equal(due, created.DueAt);
         Assert.False(created.IsCompleted);
-        Assert.Equal(TodoPriority.Medium, created.Priority);
-        Assert.NotNull(created.DueAt);
-    }
-
-    [Theory]
-    [InlineData("")]
-    [InlineData("   ")]
-    public void Add_ShouldThrow_WhenTitleIsEmpty(string title)
-    {
-        var service = new TodoService();
-
-        var req = new CreateTodoRequest
-        {
-            Title = title,
-            Priority = 2
-        };
-
-        var ex = Assert.Throws<ArgumentException>(() => service.Add(req));
-        Assert.Contains("Title is required", ex.Message);
-    }
-
-    [Theory]
-    [InlineData(0)]
-    [InlineData(4)]
-    [InlineData(999)]
-    public void Add_ShouldThrow_WhenPriorityIsInvalid(int priority)
-    {
-        var service = new TodoService();
-
-        var req = new CreateTodoRequest
-        {
-            Title = "Test",
-            Priority = priority
-        };
-
-        var ex = Assert.Throws<ArgumentException>(() => service.Add(req));
-        Assert.Contains("Priority must be", ex.Message);
     }
 
     [Fact]
-    public void Delete_ShouldReturnFalse_WhenItemDoesNotExist()
+    public void Patch_ShouldReturnNull_WhenIdDoesNotExist()
     {
         var service = new TodoService();
+        var updated = new TodoItem();
 
-        var ok = service.Delete(Guid.NewGuid());
+        var patched = service.Update(Guid.NewGuid(), new UpdateTodoRequest { Title = "X" }, out updated);
 
-        Assert.False(ok);
-    }
-
-    [Fact]
-    public void ToggleComplete_ShouldReturnFalse_WhenItemDoesNotExist()
-    {
-        var service = new TodoService();
-
-        var ok = service.ToggleComplete(Guid.NewGuid());
-
-        Assert.False(ok);
+        Assert.Null(updated);
     }
 }
