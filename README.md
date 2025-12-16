@@ -44,22 +44,23 @@ The frontend is built with the latest Angular version and Angular Material.
 ## Project Structure
 
 root
-├─ api/                        # .NET Web API backend
-│  ├─ Models/
-│  ├─ Services/
-│  ├─ Program.cs
-│  ├─ TodoApi.csproj
-│  └─ TodoApi.Tests/          # Unit and integration tests
-│
-└─ client/                     # Angular frontend
-   └─ todo-client/
-      ├─ src/app/
-      │  ├─ app.component.*
-      │  ├─ confirm-dialog.component.*
-      │  ├─ todo.service.ts
-      │  └─ todo.ts
-      ├─ package.json
+├─ api/                        # .NET Web API backend  
+│  ├─ Models/  
+│  ├─ Services/  
+│  ├─ Program.cs  
+│  ├─ TodoApi.csproj  
+│  └─ TodoApi.Tests/          # Unit and integration tests  
+│  
+└─ client/                     # Angular frontend  
+   └─ todo-client/  
+      ├─ src/app/  
+      │  ├─ app.component.*  
+      │  ├─ confirm-dialog.component.*  
+      │  ├─ todo.service.ts  
+      │  └─ todo.ts  
+      ├─ package.json  
       └─ angular.json
+      
 ---
 
 ## How to Run the Project
