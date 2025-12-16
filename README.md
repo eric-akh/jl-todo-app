@@ -43,41 +43,24 @@ The frontend is built with the latest Angular version and Angular Material.
 
 ## Project Structure
 
+### Project Structure
 root
-
-├─ api/ → .NET Web API
-
-│ ├─ Models/
-
-│ ├─ Services/
-
-│ ├─ Program.cs
-
-│ ├─ TodoApi.csproj
-
-│ └─ TodoApi.Tests/ → Unit & integration tests
-
+├─ api/                  # .NET Web API
+│  ├─ Models/
+│  ├─ Services/
+│  ├─ Program.cs
+│  ├─ TodoApi.csproj
+│  └─ TodoApi.Tests/     # Unit & integration tests
 │
-
-└─ client/ → Angular application
-
-├─ todo-client/
-
-│ ├─ src/app/
-
-│ │ ├─ app.component.*
-
-│ │ ├─ confirm-dialog.component.*
-
-│ │ ├─ todo.service.ts
-
-│ │ └─ todo.ts
-
-│ ├─ package.json
-
-│ └─ angular.json
-
-
+└─ client/               # Angular application
+└─ todo-client/
+├─ src/app/
+│  ├─ app.component.*
+│  ├─ confirm-dialog.component.*
+│  ├─ todo.service.ts
+│  └─ todo.ts
+├─ package.json
+└─ angular.json
 ---
 
 ## How to Run the Project
@@ -112,16 +95,19 @@ http://localhost:4200
 #### Run Frontend Tests
 npm test
 #### API Endpoints
-Method|Endpoint|Description
-GET|/api/todos|Get all TODO items
-POST|/api/todos|Add a new TODO item
-PATCH|/api/todos/{id}/toggle|Toggle completion status
-DELETE|/api/todos/{id}|Delete a TODO item
+### API Endpoints
+
+| Method | Endpoint              | Description                  |
+|--------|-----------------------|------------------------------|
+| GET    | `/api/todos`          | Get all TODO items           |
+| POST   | `/api/todos`          | Add a new TODO item          |
+| PATCH  | `/api/todos/{id}/toggle` | Toggle completion status   |
+| DELETE | `/api/todos/{id}`     | Delete a TODO item           |
 
 #### Validation Rules
 - Title is required and trimmed
 
-- -Due date is mandatory (Assumption: Due date is later than today)
+- Due date is mandatory (Assumption: Due date is later than today)
 
 - Priority must be a valid enum value
 
