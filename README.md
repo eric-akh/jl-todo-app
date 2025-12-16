@@ -24,7 +24,7 @@ The frontend is built with the latest Angular version and Angular Material.
 ## Technologies Used
 
 ### Backend
-- .NET Web API (latest, Minimal APIs)
+- .NET Web API (.NET 10, Minimal APIs)
 - C#
 - In-memory data store
 - Data validation using DTOs
@@ -32,7 +32,7 @@ The frontend is built with the latest Angular version and Angular Material.
 - Integration tests using WebApplicationFactory
 
 ### Frontend
-- Angular (latest)
+- Angular (latest version 21.0.x)
 - TypeScript
 - Angular Material
 - Reactive Forms
@@ -44,21 +44,37 @@ The frontend is built with the latest Angular version and Angular Material.
 ## Project Structure
 
 root
+
 ├─ api/ → .NET Web API
+
 │ ├─ Models/
+
 │ ├─ Services/
+
 │ ├─ Program.cs
+
 │ ├─ TodoApi.csproj
+
 │ └─ TodoApi.Tests/ → Unit & integration tests
+
 │
+
 └─ client/ → Angular application
+
 ├─ todo-client/
+
 │ ├─ src/app/
+
 │ │ ├─ app.component.*
+
 │ │ ├─ confirm-dialog.component.*
+
 │ │ ├─ todo.service.ts
+
 │ │ └─ todo.ts
+
 │ ├─ package.json
+
 │ └─ angular.json
 
 
@@ -68,55 +84,55 @@ root
 
 ### 1. Run the Backend API
 
-```
 cd api
 dotnet restore
 dotnet run
-API will be available at:
+
+#### API will be available at:
 
 http://localhost:5028
-Swagger UI:
+#### Swagger UI:
 
 
 http://localhost:5028/swagger
-Run Backend Tests
+#### Run Backend Tests
 
 
 cd api
 dotnet test
 
-2. Run the Angular Client
+### 2. Run the Angular Client
 
 cd client/todo-client
 npm install
 npm start
-Client will be available at:
+#### Client will be available at:
 
 http://localhost:4200
-Run Frontend Tests
+#### Run Frontend Tests
 npm test
-API Endpoints
-Method	Endpoint	Description
-GET	/api/todos	Get all TODO items
-POST	/api/todos	Add a new TODO item
-PATCH	/api/todos/{id}/toggle	Toggle completion status
-DELETE	/api/todos/{id}	Delete a TODO item
+#### API Endpoints
+Method|Endpoint|Description
+GET|/api/todos|Get all TODO items
+POST|/api/todos|Add a new TODO item
+PATCH|/api/todos/{id}/toggle|Toggle completion status
+DELETE|/api/todos/{id}|Delete a TODO item
 
-Validation Rules
-Title is required and trimmed
+#### Validation Rules
+- Title is required and trimmed
 
-Due date is mandatory (enforced on backend)
+- -Due date is mandatory (Assumption: Due date is later than today)
 
-Priority must be a valid enum value
+- Priority must be a valid enum value
 
-Invalid requests return appropriate HTTP status codes
+- Invalid requests return appropriate HTTP status codes
 
-Notes
-No database is used (per assessment requirements)
+### Notes
+- No database is used (per assessment requirements)
 
-Data resets when the API restarts
+- Data resets when the API restarts
 
-Backend validation ensures data integrity even if client-side validation is bypassed
+- Backend validation ensures data integrity even if client-side validation is bypassed
 
-UI focuses on clarity and usability rather than visual complexity
+- UI focuses on clarity and usability rather than visual complexity
 
